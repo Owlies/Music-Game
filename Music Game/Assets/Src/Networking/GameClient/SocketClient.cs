@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
@@ -22,7 +22,7 @@ namespace GameSocket
         private const int bufferSize = 10240;
         private Socket connection;
 
-        public byte[] receivedData;
+        public byte [] receivedData;
         public int receivedDataSize;
         public event EventHandler<SocketMessageReceivedFromServer> SocketMessageReceivedFromServer;
         public event EventHandler<CreateConnectionAsyncArgs> CreateConnectCompleted;
@@ -48,10 +48,8 @@ namespace GameSocket
             this.connection.BeginConnect(end_point, new AsyncCallback(this.Connected), this.connection);
         }
 
-        public bool isConnected()
-        {
-            if (this.connection == null)
-            {
+        public bool isConnected() {
+            if (this.connection == null) {
                 return false;
             }
             return this.connection.Connected;
@@ -101,8 +99,8 @@ namespace GameSocket
                 }
                 return;
             }
-            string temp = TCPClient.CompileBytesIntoString(data, data.Length);
-            Debug.Log(string.Format("Socket Client sending: len: {1} '{0}'", temp, data.Length));
+			string temp = TCPClient.CompileBytesIntoString(data, data.Length);
+			Debug.Log(string.Format("Socket Client sending: len: {1} '{0}'", temp, data.Length));
 
             this.connection.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(this.SendMessageToServerComplete), this.connection);
         }
@@ -132,8 +130,7 @@ namespace GameSocket
                 byte[] array = new byte[bufferSize];
                 this.connection.BeginReceive(array, 0, bufferSize, SocketFlags.None, new AsyncCallback(this.KeepConnect), array);
             }
-            catch (SocketException)
-            {
+            catch(SocketException){
                 if (ConnectError != null)
                 {
                     ConnectError(this, new EventArgs());
@@ -176,7 +173,7 @@ namespace GameSocket
             }
             catch (SocketException)
             {
-
+                
             }
         }
     }

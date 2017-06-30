@@ -1,7 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using Owlies.Core;
 
 public enum ConnectionState
 {
@@ -10,13 +12,14 @@ public enum ConnectionState
 	Connected
 }
 
-public class TCPClient : MonoBehaviour {
+public class TCPClient : Singleton<TCPClient> {
 
 	public APIManager api;
 	public ConnectionState connectState;
 	Socket m_clientSocket;
 	byte[] m_readBuffer;
-	void Start()
+
+	private TCPClient()
 	{
 		connectState = ConnectionState.NotConnected;
 		m_readBuffer = new byte[1024];
@@ -32,13 +35,10 @@ public class TCPClient : MonoBehaviour {
 			bool connectSuccess = result.AsyncWaitHandle.WaitOne(System.TimeSpan.FromSeconds(10));
 			if (!connectSuccess)
 			{
-				m_clientSocket.Close();
 				Debug.LogError(string.Format("Client unable to connect. Failed"));
-			}
-			else
-			{
-				connectState = ConnectionState.NotConnected;
-			}
+                CloseConnection();
+
+            }
 		}
 		catch (System.Exception ex)
 		{
@@ -95,7 +95,7 @@ public class TCPClient : MonoBehaviour {
 		{
 			string temp = CompileBytesIntoString(msgArray, len);
 			Debug.Log(string.Format("tcp Client sending: len: {1} '{0}'", temp, len));
-			m_clientSocket.BeginSend(msgArray, 0, len, SocketFlags.None, EndSend, msgArray);
+			m_clientSocket.BeginSend(msgArray, 0, len, SocketFlags.None, EndSend, m_clientSocket);
 		}
 	}
 
@@ -105,6 +105,12 @@ public class TCPClient : MonoBehaviour {
 		byte[] msg = (iar.AsyncState as byte[]);
 		string temp = CompileBytesIntoString(msg, msg.Length);
 		Debug.Log(string.Format("Client sent: '{0}'", temp));
+	}
+
+	public void CloseConnection()
+	{
+		m_clientSocket.Close();
+		connectState = ConnectionState.NotConnected;
 	}
 
 	public static string CompileBytesIntoString(byte[] msg, int len = -1)
