@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,30 +30,22 @@ namespace Owlies.Core {
 
         public void serialize(SprotoTypeBase sprotoObject, eMessageRequestType messageType) {
             string messageName = sprotoObject.GetType().Name;
-            int totalSize = 9 + messageName.Length;
+            int totalSize = 3 + messageName.Length;
 
-            this.sendBuffer[2] = (byte)messageType;
+            this.sendBuffer[0] = (byte)messageType;
 
-            this.sendBuffer[3] = (byte)(this.session >> 24);
-            this.sendBuffer[4] = (byte)(this.session >> 16);
-            this.sendBuffer[5] = (byte)(this.session >> 8);
-            this.sendBuffer[6] = (byte)(this.session);
-
-            this.sendBuffer[7] = (byte)(messageName.Length >> 8);
-            this.sendBuffer[8] = (byte)(messageName.Length);
+            this.sendBuffer[1] = (byte)(messageName.Length >> 8);
+            this.sendBuffer[2] = (byte)(messageName.Length);
 
             byte [] messageNameBytes = Encoding.ASCII.GetBytes(messageName.ToCharArray());
-            System.Buffer.BlockCopy(messageNameBytes, 0, this.sendBuffer, 9, messageName.Length);
+            System.Buffer.BlockCopy(messageNameBytes, 0, this.sendBuffer, 3, messageName.Length);
 
             byte [] encodedMessage = sprotoObject.encode();
 
             System.Buffer.BlockCopy(encodedMessage, 0, this.sendBuffer, totalSize, encodedMessage.Length);
             totalSize += encodedMessage.Length;
 
-            this.sendBuffer[0] = (byte)(totalSize >> 8);
-            this.sendBuffer[1] = (byte)(totalSize);
-
-            this.sendBufferSize = totalSize;
+            this.sendBufferSize = totalSize + 6;
         }
 
         public SprotoTypeBase deserialize(byte[] package, int packageSize) {
@@ -67,9 +59,9 @@ namespace Owlies.Core {
             int messageSize = packageSize - 6 - messageNameSize;
             byte [] message = new byte[messageSize];
             Array.Copy(package, 6 + messageNameSize, message, 0, messageSize);
-            if (messageName == "LoginResponse") {
-                LoginResponse loginResponse = new LoginResponse(message);
-                return loginResponse;
+            if (messageName == "Person") {
+                Person person = new Person(message);
+                return person;
             }
 
             return null;

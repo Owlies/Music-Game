@@ -1,29 +1,15 @@
 using UnityEngine;
-using GameSocket;
 using System;
 using Owlies.Core;
 using Sproto;
 using SprotoType;
+using System.Collections;
 
 public class APIManager : MonoBehaviour {
-    private SocketClient socketClient;
-    byte[] dataToSend;
-    NetworkRequest pendingRequest;
-
     // TODO(Huayu): Move to Config
-    private String serverIpAddress = "127.0.0.1";
+    private String serverIpAddress = "192.168.1.96";
 	private int port = 8888;
-
-    private void tryConnect() {
-        if (socketClient == null) {
-            socketClient = new SocketClient();
-        }
-
-        if (!socketClient.isConnected()) {
-            Debug.Log("Connecting to " + serverIpAddress + ":" + port);
-            socketClient.CreateConnection(serverIpAddress, port);
-        }
-    }
+    private int session = 0;
 
     private LoginRequest dummyLoginRequest() {
         LoginRequest loginRequest = new LoginRequest();
@@ -41,32 +27,15 @@ public class APIManager : MonoBehaviour {
     /// any of the Update methods is called the first time.
     /// </summary>
     void Start(){
-        tryConnect();
+        NetworkManager.Instance.Connect(serverIpAddress, port);
+        NetworkManager.Instance.StartNetThread();
         LoginRequest loginRequest = dummyLoginRequest();
-        
-        ConnectionManager.Instance.serialize(loginRequest, eMessageRequestType.ChangeEvent);
-        this.dataToSend = new byte[ConnectionManager.Instance.sendBufferSize];
-		System.Buffer.BlockCopy(ConnectionManager.Instance.sendBuffer, 0, this.dataToSend, 0, ConnectionManager.Instance.sendBufferSize);
-        socketClient.SendMessageToServer(this.dataToSend);
+        NetworkManager.Instance.Send(session++, loginRequest, eMessageRequestType.ChangeEvent);
     }
 
+    private void Update()
+    {
+        
+    }
 
-	public void ProcessData(byte[] data, int size)
-	{
-		Person person = (Person)ConnectionManager.Instance.deserialize(data, size);
-		Debug.Log("Received Person Name: " + person.name);
-	}
-
-	public void SendRequest(NetworkRequest request)
-	{
-		pendingRequest = request;
-		this.socketClient.SendMessageToServer(request.mRequestData);
-	}
-
-	void GetResponse(byte[] response, int packageSize)
-	{
-		if (pendingRequest != null) {
-			pendingRequest.SetResponse(response, true);
-		}
-	}
 }

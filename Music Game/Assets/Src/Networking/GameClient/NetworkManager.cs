@@ -1,121 +1,196 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEngine;
 using System;
-using Random = UnityEngine.Random;
+using System.IO;
+using System.Net.Sockets;
+using System.Threading;
+using System.Collections.Generic;
 using Sproto;
-using SprotoType;
+using Owlies.Core;
 
-public enum NetworkRequestStatus
+public delegate void PacketHandle(int msgid, object msgpara);
+public class NetworkManager
 {
-	None = 0,
-	Started = 1,
-	Failed = 2,
-	Success = 3,
-	Timeout = 4
-}
+    private TcpClient mClient;
+    private NetworkStream mStream;
 
-public class NetworkRequest
-{
-	public byte[] mRequestData;
-	public NetworkRequestStatus mStatus;
-	public byte[] mResponseData;
-	public Action<byte[]> mSuccess;
-	public Action<byte[]> mFail;
+    private static NetworkManager instance;
 
-	public void SetResponse(byte[] response, bool success)
-	{
-		mResponseData = response;
-		mStatus = success ? NetworkRequestStatus.Success : NetworkRequestStatus.Failed;
-	}
-}
+    private Thread mRecvThread;
+    private Thread mSendThread;
+    private bool mThreadRunning;
+  
+    private const int BUFF_SIZE = 1024;
+    private CircularBuffer<Protocol> mSendBuffer;
+    private CircularBuffer<Protocol> mRecvBuffer;
+    public Dictionary<int, PacketHadleInfo> _packetHandleDic = new Dictionary<int, PacketHadleInfo>();
 
-public class NetworkManager : MonoBehaviour {
-
-	private static NetworkManager m_instance;
-	private NetworkManager() { }
-
-	[Range(0,1)]
-	public float mSimulateSuccessRate = 0.5f;
-
-	[Range(0,1)]
-	public float mSimulateRespondTime = 0.5f;
-
-	Queue<NetworkRequest> mRequests = new Queue<NetworkRequest>();
-
-	public static NetworkManager Instance
-	{
-		get
-		{
-			if (m_instance == null)
-				m_instance = GameObject.FindObjectOfType(typeof(NetworkManager)) as NetworkManager;
-			return m_instance;
-		}
-	}
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-    void Update()
+    private NetworkManager()
     {
+        mSendBuffer = new CircularBuffer<Protocol>(BUFF_SIZE);
+        mRecvBuffer = new CircularBuffer<Protocol>(BUFF_SIZE);
+    }
 
-		if(mRequests.Count <= 0)
-			return;
-		
-		NetworkRequest currentRequest = mRequests.Peek();
-		
-		switch(currentRequest.mStatus)
-		{
-		case NetworkRequestStatus.None:
-			currentRequest.mStatus = NetworkRequestStatus.Started;
-			GameObject.Find("ApiManager").GetComponent<APIManager>().SendRequest(currentRequest);
-			break;
-		case NetworkRequestStatus.Success:
-			currentRequest.mSuccess(currentRequest.mResponseData);
-			mRequests.Dequeue();
-			break;
-		case NetworkRequestStatus.Failed:
-			currentRequest.mFail(currentRequest.mResponseData);
-			mRequests.Dequeue();
-			break;
-		default:
-			break;
-		}
+    public static NetworkManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = new NetworkManager();
+            }
 
+            return instance;
+        }        
+    }
 
+    public struct PacketHadleInfo
+    {
+        public PacketHandle packetHandle;
+        public int interstResult;
 
-	}
+        public PacketHadleInfo(PacketHandle handle, int interest)
+        {
+            packetHandle = handle;
+            interstResult = interest;
+        }
+    }
 
-	public void SendNetworkRequest<T>(SprotoTypeBase request, Action<byte[]> success, Action<byte[]> fail)
-	{
-		NetworkRequest newRequest = new NetworkRequest();
-		newRequest.mRequestData = request.encode();
-		newRequest.mSuccess = success;
-		newRequest.mFail = fail;
-		mRequests.Enqueue(newRequest);
-	}
+    public bool Connect(string ip, int port)
+    {
+        try
+        {
+            mClient = new TcpClient(ip, port);
+            mStream = mClient.GetStream();
+            
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
-	public void SendNetworkRequestAsnyc(string request, Action<object> success, Action<object> fail)
-	{
-		//Debug.Log("sending request : " + request);
-		StartCoroutine( SimulateNetworkRequest(request, success, fail) );
-	}
+    public void StartNetThread()
+    {
+        mThreadRunning = true;
 
-	IEnumerator SimulateNetworkRequest(string request, Action<object> success, Action<object> fail)
-	{
-		if(Random.Range(0,1.0f) < mSimulateSuccessRate)
-		{
-			yield return new WaitForSeconds(mSimulateRespondTime);
-			//Debug.LogWarning("Success Request : " + request);
-			success("success");
-		}
-		else
-		{
-			yield return new WaitForSeconds(mSimulateRespondTime);
-			fail("fail");
-		}
-	}
+        mSendThread = new Thread(SendFunc);
+        mSendThread.Start();
+
+        mRecvThread = new Thread(RecvFunc);
+        mRecvThread.Start();
+    }
+
+    public void Disconnect()
+    {
+        mStream.Close();
+        mClient.Close();
+
+        mThreadRunning = false;
+        mRecvThread.Join(500);
+        mSendThread.Join(500);
+    }
+
+    public void Send(int msgno, SprotoTypeBase obj, eMessageRequestType messageType)
+    {
+        ConnectionManager.Instance.serialize(obj, messageType);
+        byte[] sendBuffer = new byte[ConnectionManager.Instance.sendBufferSize];
+        System.Buffer.BlockCopy(ConnectionManager.Instance.sendBuffer, 0, sendBuffer, 0, ConnectionManager.Instance.sendBufferSize);
+        MemoryStream stream = new MemoryStream(sendBuffer);
+        Protocol protocol = new Protocol();
+        protocol.msgno = msgno;
+        protocol.stream = stream;
+        mSendBuffer.PushBack(protocol);
+    }
+
+    public Protocol GetRecvMessage()
+    {
+        if(mRecvBuffer.IsEmpty)
+        {
+            return null;
+        }
+        Protocol protocol = mRecvBuffer.Front();
+        mRecvBuffer.PopFront();
+        return protocol;
+    }
+
+    private void RecvFunc()
+    {
+        byte[] buf = new byte[1024];
+        while (mThreadRunning)
+        {
+            int len = mStream.Read(buf, 0, buf.Length);
+            if (len >= 6)
+            {
+                short size = (short)(buf[0] << 8 | buf[1]);
+                int msgno = (int)(buf[2] << 24 | buf[3] << 16 | buf[4] << 8 | buf[5]);
+                Debug.Log("recv msg: " + msgno);
+                //int module = msgno >> 16;
+                //int opcode = msgno & 0x0000FFFF;
+
+                MemoryStream stream = new MemoryStream(buf, 6, len - 6);
+                Protocol protocol = new Protocol();
+                protocol.msgno = msgno;
+                protocol.stream = stream;
+
+                mRecvBuffer.PushBack(protocol);
+            }         
+        }        
+    }  
+    
+    private void SendFunc()
+    {
+        while(mThreadRunning)
+        {
+            if(!mSendBuffer.IsEmpty)
+            {
+                Protocol protocol = mSendBuffer.Front();
+                Debug.Log("send msg: " + protocol.msgno);
+                SendMessageToServer(protocol.msgno, protocol.stream);
+                mSendBuffer.PopFront();
+            }
+        }
+    }      
+
+    private void SendMessageToServer(int msgno, MemoryStream stream)
+    {
+        //总长度=数据包长度所占字节+消息号长度+消息体长度
+        byte[] msgBody = stream.ToArray();
+        short msgBodySize = Convert.ToInt16(msgBody.Length);
+        int pkgSize = 2 + 4 + msgBodySize;
+        byte[] msgByte = new byte[pkgSize];
+
+        int avaliableSize = pkgSize - 2;
+        msgByte[0] = (byte)(avaliableSize >> 8);
+        msgByte[1] = (byte)(avaliableSize);
+
+        msgByte[2] = (byte)(msgno >> 24);
+        msgByte[3] = (byte)(msgno >> 16);
+        msgByte[4] = (byte)(msgno >> 8);
+        msgByte[5] = (byte)(msgno);
+
+        int index = 6;
+        //message body
+        for (int i = 0; i < msgBody.Length; i++)
+        {
+            msgByte[index] = msgBody[i];
+            index++;
+        }
+
+        mStream.Write(msgByte, 0, msgByte.Length);
+        mStream.Flush();
+    }
+
+    public void RegisterProtoHandler(int msgID, PacketHandle handler, int interestResult = -1)
+    {
+        if (_packetHandleDic.ContainsKey(msgID))
+        {
+
+            Debug.Log("Already register msg " + msgID + " handler");
+            return;
+        }
+
+        PacketHadleInfo info = new PacketHadleInfo(handler, interestResult);
+        _packetHandleDic.Add(msgID, info);
+    }
 }
