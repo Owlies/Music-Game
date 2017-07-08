@@ -20,6 +20,7 @@ public class NetworkManager
     private bool mThreadRunning;
   
     private const int BUFF_SIZE = 1024;
+	private const int RECEIVE_BUFFER_SIZE = 0xFFFF;
     private CircularBuffer<Protocol> mSendBuffer;
     private CircularBuffer<Protocol> mRecvBuffer;
     public Dictionary<int, PacketHadleInfo> _packetHandleDic = new Dictionary<int, PacketHadleInfo>();
@@ -93,10 +94,7 @@ public class NetworkManager
 
     public void Send(int msgno, SprotoTypeBase obj, eMessageRequestType messageType)
     {
-        ConnectionManager.Instance.serialize(obj, messageType);
-        byte[] sendBuffer = new byte[ConnectionManager.Instance.sendBufferSize];
-        System.Buffer.BlockCopy(ConnectionManager.Instance.sendBuffer, 0, sendBuffer, 0, ConnectionManager.Instance.sendBufferSize);
-        MemoryStream stream = new MemoryStream(sendBuffer);
+        MemoryStream stream = new MemoryStream(ConnectionManager.Instance.serialize(obj, messageType));
         Protocol protocol = new Protocol();
         protocol.msgno = msgno;
         protocol.stream = stream;
@@ -116,7 +114,7 @@ public class NetworkManager
 
     private void RecvFunc()
     {
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[RECEIVE_BUFFER_SIZE];
         while (mThreadRunning)
         {
             int len = mStream.Read(buf, 0, buf.Length);
@@ -124,7 +122,7 @@ public class NetworkManager
             {
                 short size = (short)(buf[0] << 8 | buf[1]);
                 int msgno = (int)(buf[2] << 24 | buf[3] << 16 | buf[4] << 8 | buf[5]);
-                Debug.Log("recv msg: " + msgno);
+                Debug.Log("recv msg: " + size + ", " + msgno);
                 //int module = msgno >> 16;
                 //int opcode = msgno & 0x0000FFFF;
 
@@ -169,7 +167,9 @@ public class NetworkManager
         msgByte[4] = (byte)(msgno >> 8);
         msgByte[5] = (byte)(msgno);
 
-        int index = 6;
+		Debug.Log("pkgSize " + pkgSize);
+
+		int index = 6;
         //message body
         for (int i = 0; i < msgBody.Length; i++)
         {
