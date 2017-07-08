@@ -169,13 +169,7 @@ public class NetworkManager
 
 		Debug.Log("pkgSize " + pkgSize);
 
-		int index = 6;
-        //message body
-        for (int i = 0; i < msgBody.Length; i++)
-        {
-            msgByte[index] = msgBody[i];
-            index++;
-        }
+		System.Buffer.BlockCopy(msgBody, 0, msgByte, 6, msgBodySize);
 
         mStream.Write(msgByte, 0, msgByte.Length);
         mStream.Flush();
