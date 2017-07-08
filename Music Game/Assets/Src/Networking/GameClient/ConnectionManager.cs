@@ -16,17 +16,20 @@ namespace Owlies.Core {
 
         public byte[] serialize(SprotoTypeBase sprotoObject, eMessageRequestType messageType) {
             string messageName = sprotoObject.GetType().Name;
+            int messageNameLen = messageName.Length + 1;
             byte [] encodedMessage = sprotoObject.encode();
             byte [] messageNameBytes = Encoding.ASCII.GetBytes(messageName.ToCharArray());
-            int totalSize = 3 + messageName.Length + encodedMessage.Length;
+            int totalSize = 3 + messageNameLen + encodedMessage.Length;
             byte [] sendBuffer = new byte[totalSize];
 
             sendBuffer[0] = (byte)messageType;
-            sendBuffer[1] = (byte)(messageName.Length >> 8);
-            sendBuffer[2] = (byte)(messageName.Length);
+            sendBuffer[1] = (byte)(messageNameLen >> 8);
+            sendBuffer[2] = (byte)(messageNameLen);
             
             System.Buffer.BlockCopy(messageNameBytes, 0, sendBuffer, 3, messageName.Length);
-            System.Buffer.BlockCopy(encodedMessage, 0, sendBuffer, 3 + messageName.Length, encodedMessage.Length);
+            // Append an extra '\0'
+            sendBuffer[3 + messageName.Length] = 0;
+            System.Buffer.BlockCopy(encodedMessage, 0, sendBuffer, 4 + messageName.Length, encodedMessage.Length);
 
             return sendBuffer;
         }

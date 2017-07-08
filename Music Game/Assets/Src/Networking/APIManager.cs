@@ -23,23 +23,6 @@ public class APIManager : Singleton<APIManager> {
         return loginRequest;
     }
 
-    Person getStubPerson() {
-        AddressBook address = new AddressBook();
-        address.person = new System.Collections.Generic.List<Person>();
-
-        Person person = new Person();
-        person.name = "Amy";
-        person.id = 10120;
-
-        person.phone = new System.Collections.Generic.List<Person.PhoneNumber>();
-        Person.PhoneNumber num1 = new Person.PhoneNumber();
-        num1.number = "123456789";
-        num1.type = 1;
-        person.phone.Add(num1);
-
-        return person;
-    }
-
     /// <summary>
     /// Start is called on the frame when a script is enabled just before
     /// any of the Update methods is called the first time.
@@ -48,7 +31,7 @@ public class APIManager : Singleton<APIManager> {
         NetworkManager.Instance.Connect(serverIpAddress, port);
         NetworkManager.Instance.StartNetThread();
         LoginRequest loginRequest = dummyLoginRequest();
-        NetworkManager.Instance.Send(session++, getStubPerson(), eMessageRequestType.ChangeEvent);
+        NetworkManager.Instance.Send(session++, loginRequest, eMessageRequestType.ChangeEvent);
     }
 
     private void Update() {
