@@ -24,7 +24,7 @@ public class LeftController : MonoBehaviour {
 
         if (!jumpEnabled)
         {
-            other.collider.SendMessage("EnableLeftJump", true);
+            other.collider.SendMessageUpwards("EnableLeftJump", true);
             jumpEnabled = true;
         }
     }
@@ -38,7 +38,7 @@ public class LeftController : MonoBehaviour {
 
         if (jumpEnabled)
         {
-            other.collider.SendMessage("EnableLeftJump", false);
+            other.collider.SendMessageUpwards("EnableLeftJump", false);
             jumpEnabled = false;
         }
     }

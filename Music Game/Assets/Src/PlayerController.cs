@@ -28,7 +28,8 @@ public class PlayerController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update ()
+    {
 
         handleKeyBoardInput();
         if (mRigidbody.velocity.y == 0)
