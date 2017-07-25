@@ -4,8 +4,16 @@ using UnityEngine;
 
 public class DisAnimTrigger : MonoBehaviour {
 
+    public enum TriggerType
+    {
+        X_Axis,
+        Y_Axis,
+        Sphere,
+        Custom,
+    }
+    public TriggerType triggerType = TriggerType.X_Axis;
     public float distanceToTrigger = 1.0f;
-    public string triggerType = "ScaleUp";
+    public string triggerEvent = "ScaleUp";
 
     GameObject player;
     Animator animator;
@@ -22,20 +30,45 @@ public class DisAnimTrigger : MonoBehaviour {
 	void Update () {
         if (triggered)
             return;
-
-        float realDistance = Vector3.Distance(player.transform.position, gameObject.transform.position);
-        if (realDistance < distanceToTrigger)
+        if (triggerType == TriggerType.Sphere)
         {
-            triggered = true;
-            animator.SetTrigger(triggerType);
+            float realDistance = Vector3.Distance(player.transform.position, gameObject.transform.position);
+            if (realDistance < distanceToTrigger)
+            {
+                triggered = true;
+                animator.SetTrigger(triggerEvent);
+            }
         }
-        
+        else if (triggerType == TriggerType.X_Axis)
+        {
+            float realDistance = Mathf.Abs(player.transform.position.x - gameObject.transform.position.x);
+            if (realDistance < distanceToTrigger)
+            {
+                triggered = true;
+                animator.SetTrigger(triggerEvent);
+            }
+        }
+        else if (triggerType == TriggerType.Y_Axis)
+        {
+            float realDistance = Mathf.Abs(player.transform.position.y - gameObject.transform.position.y);
+            if (realDistance < distanceToTrigger)
+            {
+                triggered = true;
+                animator.SetTrigger(triggerEvent);
+            }
+        }
+
 
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(1, 1, 0, 0.75F);
-        Gizmos.DrawWireSphere(transform.position, distanceToTrigger);
+        if (triggerType == TriggerType.Sphere)
+            Gizmos.DrawWireSphere(transform.position, distanceToTrigger);
+        else if (triggerType == TriggerType.X_Axis)
+            Gizmos.DrawWireCube(transform.position, new Vector3(distanceToTrigger * 2,10000,10000));
+        else if (triggerType == TriggerType.Y_Axis)
+            Gizmos.DrawWireCube(transform.position, new Vector3(10000, distanceToTrigger * 2, 10000));
     }
 }

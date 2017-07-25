@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour {
     int isLeftJumpEnabled = 0;
     int isRightJumpEnabled = 0;
     bool isJumping = false;
+    bool isDead = false;
     // Use this for initialization
     void Start ()
     {
@@ -30,7 +31,6 @@ public class PlayerController : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
-
         handleKeyBoardInput();
         if (mRigidbody.velocity.y == 0)
             isJumping = false;
@@ -50,6 +50,13 @@ public class PlayerController : MonoBehaviour {
             mRigidbody.AddForce(new Vector2(0, verticalSpeed), ForceMode2D.Impulse);
             isJumping = true;
         }
+    }
+
+    public void Dead()
+    {
+        isDead = true;
+        mRigidbody.velocity = new Vector2(0, 0);
+        mRigidbody.Sleep();
     }
 
 }
