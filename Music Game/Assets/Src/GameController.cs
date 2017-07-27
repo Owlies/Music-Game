@@ -31,6 +31,6 @@ public class GameController : MonoBehaviour {
     {
         musicCtrl.StopLevelMusic();
         playerCtrl.Dead();
-        StartCoroutine(reloadAfterTime(2.0f));
+        StartCoroutine(reloadAfterTime(0.5f));
     }
 }
