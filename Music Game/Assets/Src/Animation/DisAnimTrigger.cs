@@ -41,7 +41,7 @@ public class DisAnimTrigger : MonoBehaviour {
         }
         else if (triggerType == TriggerType.X_Axis)
         {
-            float realDistance = Mathf.Abs(player.transform.position.x - gameObject.transform.position.x);
+            float realDistance = -(player.transform.position.x - gameObject.transform.position.x);
             if (realDistance < distanceToTrigger)
             {
                 triggered = true;
@@ -50,7 +50,7 @@ public class DisAnimTrigger : MonoBehaviour {
         }
         else if (triggerType == TriggerType.Y_Axis)
         {
-            float realDistance = Mathf.Abs(player.transform.position.y - gameObject.transform.position.y);
+            float realDistance = -(player.transform.position.y - gameObject.transform.position.y);
             if (realDistance < distanceToTrigger)
             {
                 triggered = true;
@@ -67,8 +67,8 @@ public class DisAnimTrigger : MonoBehaviour {
         if (triggerType == TriggerType.Sphere)
             Gizmos.DrawWireSphere(transform.position, distanceToTrigger);
         else if (triggerType == TriggerType.X_Axis)
-            Gizmos.DrawWireCube(transform.position, new Vector3(distanceToTrigger * 2,10000,10000));
+            Gizmos.DrawLine(new Vector3(transform.position.x - distanceToTrigger, 10000, 0), new Vector3(transform.position.x - distanceToTrigger, -10000, 0));
         else if (triggerType == TriggerType.Y_Axis)
-            Gizmos.DrawWireCube(transform.position, new Vector3(10000, distanceToTrigger * 2, 10000));
+            Gizmos.DrawLine(new Vector3(10000, transform.position.y + distanceToTrigger, 0), new Vector3(-10000, transform.position.y + distanceToTrigger, 0));
     }
 }
