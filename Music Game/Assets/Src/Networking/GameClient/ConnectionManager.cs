@@ -36,17 +36,24 @@ namespace Owlies.Core {
 
         public SprotoTypeBase deserialize(byte[] package, int packageSize) {
             int messageNameSize = package[0] << 8 | package[1];
+     
             char [] chars = new char[messageNameSize];
             for(int i = 0; i < messageNameSize; ++i) {
                 chars[i] = (char)package[i + 2];
             }
             string messageName = new string(chars);
+      
             int messageSize = packageSize - 2 - messageNameSize;
             byte [] message = new byte[messageSize];
             Array.Copy(package, 2 + messageNameSize, message, 0, messageSize);
+
+            // Move this to a hash map
             if (messageName == "Person") {
                 Person person = new Person(message);
                 return person;
+            } else if (messageName == "LoginResponse") {
+                LoginResponse response = new LoginResponse(message);
+                return response;
             }
 
             return null;
