@@ -5,8 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
     private Rigidbody2D mRigidbody;
-    public float horizontalSpeed = 2.5f;
-    public float verticalSpeed = 0.1f;
+    public float horizontalSpeed = 0.0f;
+    public float verticalSpeed = 0.0f;
     int isLeftJumpEnabled = 0;
     int isRightJumpEnabled = 0;
     bool isJumping = false;
@@ -27,10 +27,11 @@ public class PlayerController : MonoBehaviour {
     {
         isRightJumpEnabled += enable ? 1 : -1;
     }
-
+    
     // Update is called once per frame
     void Update ()
     {
+
         handleKeyBoardInput();
         if (mRigidbody.velocity.y == 0)
             isJumping = false;
