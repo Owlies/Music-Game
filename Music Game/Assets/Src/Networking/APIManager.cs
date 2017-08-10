@@ -38,7 +38,7 @@ public class APIManager : Singleton<APIManager> {
         Protocol protocol = NetworkManager.Instance.GetRecvMessage();
         if (protocol != null) {
             SprotoTypeBase sproto = ConnectionManager.Instance.deserialize(protocol.stream.ToArray(), Convert.ToInt32(protocol.stream.Length));
-            Debug.Log(sproto.GetType());
+            Debug.Log("Receievd: " + sproto.GetType());
         }
         
     }
