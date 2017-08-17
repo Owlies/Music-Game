@@ -8,17 +8,18 @@ public class ScaleWithSound : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
-        audioSource = GameObject.FindGameObjectWithTag("MusicController").GetComponent<AudioSource>();
+        //audioSource = GameObject.FindGameObjectWithTag("MusicController").GetComponent<AudioSource>();
+        //Debug.Log(audioSource.clip.samples);
+        //Debug.Log(audioSource.clip.frequency);
+        //Debug.Log(audioSource.clip.length);
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        float[] spectrum = new float[64];
-        AudioListener.GetSpectrumData(spectrum, 0, FFTWindow.Rectangular);
-        float count = 0;
-        for (int i = 0; i < 64; i++)
-            count += spectrum[i];
-        gameObject.transform.localScale = new Vector3(0.6f + 0.5f * count, 0.6f + 0.5f * count, 1);
+        //int count = audioSource.clip.samples;
+        //float[] spectrum = new float[count];
+        //audioSource.clip.GetData(spectrum, 0);
+        ////gameObject.transform.localScale = new Vector3(0.6f + 0.5f * count, 0.6f + 0.5f * count, 1);
     }
 }

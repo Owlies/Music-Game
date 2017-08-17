@@ -7,12 +7,15 @@ public class GameController : MonoBehaviour {
 
     private PlayerController playerCtrl;
     private MusicController musicCtrl;
+    private GameObject debugInfo;
 
     // Use this for initialization
     void Start ()
     {
         playerCtrl = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
+        debugInfo = GameObject.FindGameObjectWithTag("EditorOnly");
+        debugInfo.SetActive(false);
     }
 	
 	// Update is called once per frame
