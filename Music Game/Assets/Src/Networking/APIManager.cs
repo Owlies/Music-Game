@@ -11,7 +11,9 @@ public class APIManager : Singleton<APIManager> {
 	private String serverIpAddress = "127.0.0.1";
     private int port = 8888;
     private int session = 0;
-
+    void Awake() {
+        DontDestroyOnLoad(transform.gameObject);
+    }
     private LoginRequest dummyLoginRequest() {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.client_app_name = "MUSIC_RUN";
