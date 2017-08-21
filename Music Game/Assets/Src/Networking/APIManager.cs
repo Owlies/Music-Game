@@ -16,12 +16,12 @@ public class APIManager : Singleton<APIManager> {
     }
     private LoginRequest dummyLoginRequest() {
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.client_app_name = "MUSIC_RUN";
-        loginRequest.client_version = "1.0";
-        loginRequest.device_identifier = "test_device_123456";
+        loginRequest.client_app_name = AppConstant.Instance.APP_NAME;
+        loginRequest.client_version = AppConstant.Instance.APP_VERSION;
+        loginRequest.device_identifier = SystemInfo.deviceUniqueIdentifier;
         loginRequest.timestamp = DateTime.UtcNow.ToLongTimeString();
-        loginRequest.user_id = "1";
-        loginRequest.user_account = "1234567";
+        loginRequest.user_id = UserInfo.Instance.userId;
+        loginRequest.user_account = UserInfo.Instance.userAccount;
         return loginRequest;
     }
 
