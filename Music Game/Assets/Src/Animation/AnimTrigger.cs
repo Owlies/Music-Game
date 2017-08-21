@@ -6,16 +6,20 @@ public class AnimTrigger : MonoBehaviour {
     
     public float timeToTrigger = 1.0f;
     public string triggerEvent = "ScaleUp";
-
-    GameObject player;
+    
     Animator animator;
+    MusicController musicCtrl;
+    PlayerController playerCtrl;
+    GameObject player;
+
     bool triggered = false;
 
 	// Use this for initialization
 	void Start () {
-        player = GameObject.FindGameObjectWithTag("Player");
         animator = gameObject.GetComponent<Animator>();
-
+        musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
+        player = GameObject.FindGameObjectWithTag("Player");
+        playerCtrl = player.GetComponent<PlayerController>();
     }
 	
 	// Update is called once per frame
@@ -23,24 +27,25 @@ public class AnimTrigger : MonoBehaviour {
         if (triggered)
             return;
 
-        //float realDistance = Vector3.Distance(player.transform.position, gameObject.transform.position);
-        //if (realDistance < timeToTrigger)
-        //{
-        //    triggered = true;
-        //    animator.SetTrigger(triggerEvent);
-        //}
+        float disToTrigger = (musicCtrl.startDelay + timeToTrigger) * playerCtrl.horizontalSpeed;
+
+        float realDistance = player.transform.position.x;
+        if (realDistance > disToTrigger)
+        {
+            triggered = true;
+            animator.SetTrigger(triggerEvent);
+        }
 
 
     }
 
     void OnDrawGizmosSelected()
     {
-        //Gizmos.color = new Color(1, 1, 0, 0.75F);
-        //if (triggerType == TriggerType.Sphere)
-        //    Gizmos.DrawWireSphere(transform.position, distanceToTrigger);
-        //else if (triggerType == TriggerType.X_Axis)
-        //    Gizmos.DrawLine(new Vector3(transform.position.x - distanceToTrigger, 10000, 0), new Vector3(transform.position.x - distanceToTrigger, -10000, 0));
-        //else if (triggerType == TriggerType.Y_Axis)
-        //    Gizmos.DrawLine(new Vector3(10000, transform.position.y + distanceToTrigger, 0), new Vector3(-10000, transform.position.y + distanceToTrigger, 0));
+        player = GameObject.FindGameObjectWithTag("Player");
+        playerCtrl = player.GetComponent<PlayerController>();
+        musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
+        float disToTrigger = (musicCtrl.startDelay + timeToTrigger) * playerCtrl.horizontalSpeed; 
+        Gizmos.color = new Color(1, 1, 0, 0.75F);
+        Gizmos.DrawLine(new Vector3(disToTrigger, 10000, 0), new Vector3(disToTrigger, -10000, 0));
     }
 }
