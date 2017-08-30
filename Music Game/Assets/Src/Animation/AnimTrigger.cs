@@ -11,6 +11,15 @@ public class AnimTrigger : MonoBehaviour {
     MusicController musicCtrl;
     PlayerController playerCtrl;
     GameObject player;
+    
+    public enum Layer
+    {
+        STATIC_LAYER,
+        BACK_LAYER,
+        GAME_LAYER
+    };
+    public Layer layer = Layer.GAME_LAYER;
+    public float backLayerSpeed = -1.0f;
 
     bool triggered = false;
 
@@ -25,7 +34,14 @@ public class AnimTrigger : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         if (triggered)
+        {
+            if (layer == Layer.BACK_LAYER)
+            {
+                Vector3 pos = gameObject.transform.position;
+                gameObject.transform.position.Set(pos.x - backLayerSpeed * Time.deltaTime,pos.y,pos.z);
+            }
             return;
+        }
 
         float disToTrigger = (musicCtrl.startDelay + timeToTrigger) * playerCtrl.horizontalSpeed;
 
@@ -34,6 +50,20 @@ public class AnimTrigger : MonoBehaviour {
         {
             triggered = true;
             animator.SetTrigger(triggerEvent);
+            SpriteRenderer spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+            if (layer == Layer.STATIC_LAYER)
+            {
+                spriteRenderer.sortingLayerName = "Static";
+                Transform t = GameObject.FindGameObjectWithTag("MainCamera").transform;
+                Vector3 pos = transform.position - t.position;
+                transform.parent = t;
+                transform.position = new Vector3(pos.x, pos.y, pos.z);
+            }
+            else if (layer == Layer.BACK_LAYER)
+            {
+                spriteRenderer.sortingLayerName = "Back";
+                gameObject.transform.parent = GameObject.FindGameObjectWithTag("BackGround").transform;
+            }
         }
 
 
