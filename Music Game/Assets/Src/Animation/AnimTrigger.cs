@@ -14,6 +14,7 @@ public class AnimTrigger : MonoBehaviour {
     
     public enum Layer
     {
+        NONE_LAYER,
         STATIC_LAYER,
         BACK_LAYER,
         GAME_LAYER
@@ -37,8 +38,8 @@ public class AnimTrigger : MonoBehaviour {
         {
             if (layer == Layer.BACK_LAYER)
             {
-                Vector3 pos = gameObject.transform.position;
-                gameObject.transform.position.Set(pos.x - backLayerSpeed * Time.deltaTime,pos.y,pos.z);
+                Vector3 pos = transform.parent.position;
+                transform.parent.position = new Vector3(pos.x + backLayerSpeed * Time.deltaTime,pos.y,pos.z);
             }
             return;
         }
@@ -48,22 +49,33 @@ public class AnimTrigger : MonoBehaviour {
         float realDistance = player.transform.position.x;
         if (realDistance > disToTrigger)
         {
-            triggered = true;
-            animator.SetTrigger(triggerEvent);
             SpriteRenderer spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+            if (layer == Layer.NONE_LAYER)
+            {
+                gameObject.SetActive(false);
+            }
             if (layer == Layer.STATIC_LAYER)
             {
                 spriteRenderer.sortingLayerName = "Static";
                 Transform t = GameObject.FindGameObjectWithTag("MainCamera").transform;
-                Vector3 pos = transform.position - t.position;
-                transform.parent = t;
-                transform.position = new Vector3(pos.x, pos.y, pos.z);
+                Vector3 pos = t.position;
+                GameObject go = new GameObject("ref obj");
+                go.transform.position = new Vector3( 0, 0, 0);
+                go.transform.parent = t;
+                transform.parent = go.transform;
             }
             else if (layer == Layer.BACK_LAYER)
             {
                 spriteRenderer.sortingLayerName = "Back";
-                gameObject.transform.parent = GameObject.FindGameObjectWithTag("BackGround").transform;
+                Transform t = GameObject.FindGameObjectWithTag("MainCamera").transform;
+                Vector3 pos = t.position;
+                GameObject go = new GameObject("ref obj");
+                go.transform.position = new Vector3(0, 0, 0);
+                go.transform.parent = t;
+                transform.parent = go.transform;
             }
+            triggered = true;
+            animator.SetTrigger(triggerEvent);
         }
 
 
