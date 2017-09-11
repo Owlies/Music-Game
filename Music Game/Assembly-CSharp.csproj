@@ -46,12 +46,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Src\Animation\DisAnimTrigger.cs" />
+     <Compile Include="Assets\Src\Animation\AnimTrigger.cs" />
      <Compile Include="Assets\Src\Animation\ScaleWithSound.cs" />
+     <Compile Include="Assets\Src\AppConstant.cs" />
      <Compile Include="Assets\Src\CameraController.cs" />
      <Compile Include="Assets\Src\DeadObstacle.cs" />
      <Compile Include="Assets\Src\GameController.cs" />
-     <Compile Include="Assets\Src\LeftController.cs" />
      <Compile Include="Assets\Src\MusicController.cs" />
      <Compile Include="Assets\Src\Networking\APIManager.cs" />
      <Compile Include="Assets\Src\Networking\GameClient\CircularBuffer.cs" />
@@ -75,10 +75,12 @@
      <Compile Include="Assets\Src\Networking\Sproto\Core\SprotoTypeSerialize.cs" />
      <Compile Include="Assets\Src\Networking\Sproto\Core\SprotoTypeSize.cs" />
      <Compile Include="Assets\Src\Networking\Sproto\Server2Client.cs" />
+     <Compile Include="Assets\Src\PadController.cs" />
      <Compile Include="Assets\Src\PlayerController.cs" />
-     <Compile Include="Assets\Src\RightController.cs" />
+     <Compile Include="Assets\Src\UserInfo.cs" />
      <Compile Include="Assets\Src\Util\DebugInfo.cs" />
      <Compile Include="Assets\Src\Util\Singleton.cs" />
+     <None Include="Assets\Sound\onsets.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
