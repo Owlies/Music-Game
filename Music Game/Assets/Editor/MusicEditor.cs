@@ -31,7 +31,7 @@ public class MusicEditor {
             MusicController musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
             PlayerController playerCtrl = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
 
-            float offset = (musicCtrl.startDelay + time) * playerCtrl.horizontalSpeed;
+            float offset = (musicCtrl.startDelay + time) * playerCtrl.horizontalSpeed + 1.5f;
 
             a.transform.position = new Vector3(offset, 0, 0);
         }

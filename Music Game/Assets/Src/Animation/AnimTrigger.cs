@@ -75,7 +75,8 @@ public class AnimTrigger : MonoBehaviour {
                 transform.parent = go.transform;
             }
             triggered = true;
-            animator.SetTrigger(triggerEvent);
+            if (animator != null)
+                animator.SetTrigger(triggerEvent);
         }
 
 
