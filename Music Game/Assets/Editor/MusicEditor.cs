@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using Owlies.Core;
 
 public class MusicEditor {
 
@@ -21,6 +22,7 @@ public class MusicEditor {
 
         StreamReader sr = File.OpenText(path);
         string str;
+        GameController.Instance.onsetList.Clear();
         while ((str = sr.ReadLine()) != null)
         {
             float time = float.Parse(str);
@@ -34,6 +36,7 @@ public class MusicEditor {
             float offset = (musicCtrl.startDelay + time) * playerCtrl.horizontalSpeed + 1.5f;
 
             a.transform.position = new Vector3(offset, 0, 0);
+            GameController.Instance.onsetList.Add(offset);
         }
     }
 	

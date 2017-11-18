@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Owlies.Core;
 
-public class GameController : MonoBehaviour {
+public class GameController : Singleton<GameController> {
 
     private PlayerController playerCtrl;
     private MusicController musicCtrl;
     private GameObject debugInfo;
+    public List<float> onsetList;
 
     // Use this for initialization
     void Start ()
@@ -16,6 +18,7 @@ public class GameController : MonoBehaviour {
         musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
         debugInfo = GameObject.FindGameObjectWithTag("EditorOnly");
         debugInfo.SetActive(false);
+        onsetList = new List<float>();
     }
 	
 	// Update is called once per frame
