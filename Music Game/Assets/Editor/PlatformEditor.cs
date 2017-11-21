@@ -12,7 +12,8 @@ public class PlatformEditor {
 	// Use this for initialization
 	static void Start ()
     {
-        PlatformGenerator.Instance.GeneratePlatform();
+        PlatformGenerator generator = PlatformGenerator.Instance;
+		generator.GeneratePlatform();
     }
 	
 	// Update is called once per frame
