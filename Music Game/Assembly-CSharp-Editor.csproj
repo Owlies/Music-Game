@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Editor\MusicEditor.cs" />
+     <Compile Include="Assets\Editor\PlatformEditor.cs" />
      <Compile Include="Assets\VSCode\Plugins\Editor\VSCode.cs" />
      <None Include="Assets\Sound\plifting-acoustic-full_onset.txt" />
      <None Include="Assets\Sound\morning-sunwav_onset.txt" />

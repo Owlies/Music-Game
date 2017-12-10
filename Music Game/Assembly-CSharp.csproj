@@ -52,6 +52,7 @@
      <Compile Include="Assets\Src\CameraController.cs" />
      <Compile Include="Assets\Src\DeadObstacle.cs" />
      <Compile Include="Assets\Src\GameController.cs" />
+     <Compile Include="Assets\Src\LevelGenerator\PlatformGenerator.cs" />
      <Compile Include="Assets\Src\MusicController.cs" />
      <Compile Include="Assets\Src\Networking\APIManager.cs" />
      <Compile Include="Assets\Src\Networking\GameClient\CircularBuffer.cs" />
