@@ -3,3 +3,8 @@ Music Game/Temp/*
 Music Game/Library/metadata/*
 Music Game/Library/*
 /Music Game/Library
+ProjectVersion.txt
+Music Game/Assets/Editor/Plugins.meta
+Music Game/Assets/Editor/Plugins/Editor.meta
+Music Game/Assets/Editor/Plugins/Editor/VSCode.cs
+Music Game/Assets/Editor/Plugins/Editor/VSCode.cs.meta
