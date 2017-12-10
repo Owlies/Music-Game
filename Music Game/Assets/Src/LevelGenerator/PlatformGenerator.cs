@@ -8,11 +8,13 @@ using Owlies.Core;
 public class PlatformGenerator : Singleton<PlatformGenerator> {
     private static string GREEN_PLATFORM_1_TAG = "GreenPlatform_1";
     private static string RED_PLATFORM_1_TAG = "RedPlatform_1";
+    public float differenceY;
+    public float platformOffsetX;
+    public int platfomGenerateInterval;
     private GameObject greenPlatforms;
     private GameObject redPlatforms;
     private float lastY;
-    public float differenceY;
-    private int skipThreshold = 25;
+    private int skipThreshold = 10;
     private int upThreshold = 50;
     private int keepThreshold = 75;
 
@@ -96,10 +98,13 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
         }
 
         for (int i = 0; i < GameController.Instance.onsetList.Count; i++) {
+            if (i % platfomGenerateInterval != 0) {
+                continue;
+            }
             float x = GameController.Instance.onsetList[i];
             lastY = GenerateNextYPosition(x, lastY);
 
-            GenerateNextPlatform1(x, lastY);
+            GenerateNextPlatform1(x + platformOffsetX, lastY);
         }
     }
 	
