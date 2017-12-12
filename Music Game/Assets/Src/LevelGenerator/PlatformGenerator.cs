@@ -17,6 +17,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
     private int skipThreshold = 10;
     private int upThreshold = 50;
     private int keepThreshold = 75;
+    public List<GeneratorConfig> config;
 
 
     void Start() {

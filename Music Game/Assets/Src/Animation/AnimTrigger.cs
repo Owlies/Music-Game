@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class AnimTrigger : MonoBehaviour {
     
-    public float timeToTrigger = 1.0f;
-    public string triggerEvent = "ScaleUp";
+    public float timeToTrigger = -1.0f;
     
-    Animator animator;
+    Animation anim;
     MusicController musicCtrl;
     PlayerController playerCtrl;
     GameObject player;
@@ -26,7 +25,7 @@ public class AnimTrigger : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        animator = gameObject.GetComponent<Animator>();
+        anim = GetComponent<Animation>();
         musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
         player = GameObject.FindGameObjectWithTag("Player");
         playerCtrl = player.GetComponent<PlayerController>();
@@ -44,7 +43,7 @@ public class AnimTrigger : MonoBehaviour {
             return;
         }
 
-        float disToTrigger = (musicCtrl.startDelay + timeToTrigger) * playerCtrl.horizontalSpeed;
+        float disToTrigger = gameObject.transform.position.x + timeToTrigger * playerCtrl.horizontalSpeed;
 
         float realDistance = player.transform.position.x;
         if (realDistance > disToTrigger)
@@ -74,9 +73,11 @@ public class AnimTrigger : MonoBehaviour {
                 go.transform.parent = t;
                 transform.parent = go.transform;
             }
+            else 
+                Debug.Log(true);
             triggered = true;
-            if (animator != null)
-                animator.SetTrigger(triggerEvent);
+            if (anim != null)
+                anim.Play();
         }
 
 
@@ -87,7 +88,8 @@ public class AnimTrigger : MonoBehaviour {
         player = GameObject.FindGameObjectWithTag("Player");
         playerCtrl = player.GetComponent<PlayerController>();
         musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
-        float disToTrigger = (musicCtrl.startDelay + timeToTrigger) * playerCtrl.horizontalSpeed; 
+        Debug.Log(transform.position.x);
+        float disToTrigger = gameObject.transform.position.x + timeToTrigger * playerCtrl.horizontalSpeed;
         Gizmos.color = new Color(1, 1, 0, 0.75F);
         Gizmos.DrawLine(new Vector3(disToTrigger, 10000, 0), new Vector3(disToTrigger, -10000, 0));
     }
