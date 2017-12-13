@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using Owlies.Core;
 
 public class GameController : Singleton<GameController> {
-
+    private GameObject player;
     private PlayerController playerCtrl;
     private MusicController musicCtrl;
     private GameObject debugInfo;
@@ -14,7 +14,8 @@ public class GameController : Singleton<GameController> {
     // Use this for initialization
     void Start ()
     {
-        playerCtrl = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        player = GameObject.FindGameObjectWithTag("Player");
+        playerCtrl = player.GetComponent<PlayerController>();
         musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
         debugInfo = GameObject.FindGameObjectWithTag("EditorOnly");
         debugInfo.SetActive(false);
@@ -23,7 +24,9 @@ public class GameController : Singleton<GameController> {
 	
 	// Update is called once per frame
 	void Update () {
-
+        if (playerCtrl.checkDeath()) {
+            PlayerDead();
+        }
     }
     
     IEnumerator reloadAfterTime(float time)
@@ -37,6 +40,6 @@ public class GameController : Singleton<GameController> {
     {
         musicCtrl.StopLevelMusic();
         playerCtrl.Dead();
-        StartCoroutine(reloadAfterTime(0.5f));
+        StartCoroutine(reloadAfterTime(0.0f));
     }
 }

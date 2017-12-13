@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour {
 
@@ -12,49 +13,45 @@ public class PlayerController : MonoBehaviour {
     bool isJumping = false;
     bool isDead = false;
     // Use this for initialization
-    void Start ()
-    {
+    void Start () {
         mRigidbody = this.GetComponent<Rigidbody2D>();
         mRigidbody.velocity = new Vector2(horizontalSpeed, 0.0f);
     }
 
-    void EnableLeftJump(bool enable)
-    {
+    void EnableLeftJump(bool enable) {
         isLeftJumpEnabled += enable ? 1 : -1;
     }
 
-    void EnableRightJump(bool enable)
-    {
+    void EnableRightJump(bool enable) {
         isRightJumpEnabled += enable ? 1 : -1;
     }
     
     // Update is called once per frame
-    void Update ()
-    {
+    void Update () {
 
         handleKeyBoardInput();
-        if (mRigidbody.velocity.y == 0)
+        if (mRigidbody.velocity.y == 0) {
             isJumping = false;
+        }
     }
 
-    public void handleKeyBoardInput()
-    {
+    public void handleKeyBoardInput() {
         if ( (isLeftJumpEnabled > 0 && (Input.GetKeyDown(KeyCode.Z) || Input.GetKey(KeyCode.Z))) ||
             (isRightJumpEnabled > 0 && (Input.GetKeyDown(KeyCode.X) || Input.GetKey(KeyCode.X))) )
             Jump();
     }
 
-    void Jump()
-    {
-        if (!isJumping)
-        {
+    void Jump() {
+        if (!isJumping) {
             mRigidbody.AddForce(new Vector2(0, verticalSpeed), ForceMode2D.Impulse);
             isJumping = true;
         }
     }
 
-    public void Dead()
-    {
+    public bool checkDeath() {
+        return mRigidbody.velocity.x == 0;
+    }
+    public void Dead() {
         isDead = true;
         mRigidbody.velocity = new Vector2(0, 0);
         mRigidbody.Sleep();

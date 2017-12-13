@@ -11,17 +11,17 @@ public class APIManager : Singleton<APIManager> {
 	private String serverIpAddress = "127.0.0.1";
     private int port = 8888;
     private int session = 0;
-    void Awake() {
-        DontDestroyOnLoad(transform.gameObject);
-    }
+
     private LoginRequest dummyLoginRequest() {
         LoginRequest loginRequest = new LoginRequest();
+        loginRequest.user_id = UserInfo.Instance.userId;
+        loginRequest.user_account = UserInfo.Instance.userAccount;
+
         loginRequest.client_app_name = AppConstant.Instance.APP_NAME;
         loginRequest.client_version = AppConstant.Instance.APP_VERSION;
         loginRequest.device_identifier = SystemInfo.deviceUniqueIdentifier;
         loginRequest.timestamp = DateTime.UtcNow.ToLongTimeString();
-        loginRequest.user_id = UserInfo.Instance.userId;
-        loginRequest.user_account = UserInfo.Instance.userAccount;
+
         return loginRequest;
     }
 
@@ -30,10 +30,8 @@ public class APIManager : Singleton<APIManager> {
     /// any of the Update methods is called the first time.
     /// </summary>
     void Start(){
-        NetworkManager.Instance.Connect(serverIpAddress, port);
-        NetworkManager.Instance.StartNetThread();
-        LoginRequest loginRequest = dummyLoginRequest();
-        NetworkManager.Instance.Send(session++, loginRequest, eMessageRequestType.ChangeEvent);
+        // TODO(Huayu): Move to proper place
+        SendLoginMessage();
     }
 
     private void Update() {
@@ -42,7 +40,13 @@ public class APIManager : Singleton<APIManager> {
             SprotoTypeBase sproto = ConnectionManager.Instance.deserialize(protocol.stream.ToArray(), Convert.ToInt32(protocol.stream.Length));
             Debug.Log("Receievd: " + sproto.GetType());
         }
-        
+    }
+
+    public void SendLoginMessage() {
+        NetworkManager.Instance.Connect(serverIpAddress, port);
+        NetworkManager.Instance.StartNetThread();
+        LoginRequest loginRequest = dummyLoginRequest();
+        NetworkManager.Instance.Send(session++, loginRequest, eMessageRequestType.ChangeEvent);
     }
 
 }

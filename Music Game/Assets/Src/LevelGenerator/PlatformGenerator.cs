@@ -4,23 +4,21 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using Owlies.Core;
+using System;
 
 public class PlatformGenerator : Singleton<PlatformGenerator> {
-    private static string GREEN_PLATFORM_1_TAG = "GreenPlatform_1";
-    private static string RED_PLATFORM_1_TAG = "RedPlatform_1";
-    public float differenceY;
-    public float platformOffsetX;
-    public int platfomGenerateInterval;
-    private GameObject greenPlatforms;
-    private GameObject redPlatforms;
-    private float lastY;
-    private int skipThreshold = 10;
-    private int upThreshold = 50;
-    private int keepThreshold = 75;
+    public List<GeneratorConfig> configs;
+    private string GREEN_PLATFORM_TAG = "GreenPlatforms";
+    private string RED_PLATFORM_TAG = "RedPlatforms";
 
+    private Nullable<GeneratorConfig> GetCurrentConfig(float curX) {
+        for(int i = 0; i < configs.Count; i++) {
+            if (configs[i].startX <= curX && curX < configs[i].endX) {
+                return configs[i];
+            }
+        }
 
-    void Start() {
-        // GeneratePlatform();
+        return null;
     }
 
     void DeleteObjectWithTag(string tag) {
@@ -29,87 +27,70 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
             GameObject.DestroyImmediate(existingObjects);
     }
 
-    void GenerateGameObject(float x, float y, string resourcePath, GameObject parent) {
-        GameObject obj = GameObject.Instantiate(Resources.Load(resourcePath)) as GameObject;
-        obj.transform.parent = parent.transform;
-        obj.transform.position = new Vector3(x, y, 0);
-    }
-
-    void GenerateGreenPlatform1(float x, float y, GameObject parent) {
-        GenerateGameObject(x, y, "Prefabs/GreenPlatform_1", parent);
-    }
-
-    void GenerateRedPlatform1(float x, float y, GameObject parent) {
-        GenerateGameObject(x, y, "Prefabs/RedPlatform_1", parent);
-    }
-
-    float GenerateNextYPosition(float curX, float lastY) {
-        // TODO: Use curX to determine random factors
-         
+    private float GenerateNextYPosition(GeneratorConfig curConfig, float curX, float lastY) {
          //1 - 100
-        int randomNumber = Random.Range(1, 101);
-        if (randomNumber <= skipThreshold) {
+        int randomNumber = UnityEngine.Random.Range(1, 101);
+        if (randomNumber <= curConfig.skipThreshold) {
             return 0;
         }
 
-        if (randomNumber <= upThreshold) {
-            return lastY + differenceY;
+        if (randomNumber <= curConfig.verticalUpThreshold) {
+            return lastY + curConfig.verticalDifference;
         }
 
-        if (randomNumber <= keepThreshold) {
+        if (randomNumber <= curConfig.verticalKeepThreshold) {
             return lastY;
         }
 
-        if (lastY >= differenceY) {
-            return lastY - differenceY;
+        if (lastY >= curConfig.verticalDifference) {
+            return lastY - curConfig.verticalDifference;
         }
 
         return lastY;
     }
 
-    void GenerateNextPlatform1(float x, float y) {
-        int randomNumber = Random.Range(0, 2);
+    void GenerateGameObject(float x, float y, GameObject prefab, GameObject parent) {
+        GameObject obj = GameObject.Instantiate(prefab) as GameObject;
+        obj.transform.parent = parent.transform;
+        obj.transform.position = new Vector3(x, y, 0);
+    }
+
+    void GenerateNextPlatform(GeneratorConfig curConfig, float x, float y, GameObject greenPlatformParent, GameObject redPlatformParent) {
+        int randomNumber = UnityEngine.Random.Range(0, 2);
+        Debug.Log("GenerateNextPlatform");
         if (y == 0) {
             return;
         }
-
+        Debug.Log("GenerateNextPlatform, " + x + ", " + y);
         // Generate Green Platform
         if (randomNumber == 1) {
-            GenerateGreenPlatform1(x, y, greenPlatforms);
+            GenerateGameObject(x, y, curConfig.greenPlatformPrefb, greenPlatformParent);
             return;
         }
 
-        GenerateRedPlatform1(x, y, redPlatforms);
+        GenerateGameObject(x, y, curConfig.RedPlatformPrefb, redPlatformParent);
     }
 
     public void GeneratePlatform() {
-        DeleteObjectWithTag(GREEN_PLATFORM_1_TAG);
-        DeleteObjectWithTag(RED_PLATFORM_1_TAG);
+        DeleteObjectWithTag(GREEN_PLATFORM_TAG);
+        DeleteObjectWithTag(RED_PLATFORM_TAG);
 
-        greenPlatforms = new GameObject("GreenPlatforms_1");
-        redPlatforms = new GameObject("RedPlatforms_1");
-        greenPlatforms.tag = GREEN_PLATFORM_1_TAG;
-        redPlatforms.tag = RED_PLATFORM_1_TAG;
+        float lastY = 0.0f;
 
-        lastY = 0.0f;
-
-        if (GameController.Instance.onsetList.Count <= 0) {
-            return;
-        }
+        GameObject greenPlatforms = new GameObject(GREEN_PLATFORM_TAG);
+        GameObject redPlatforms = new GameObject(RED_PLATFORM_TAG);
+        greenPlatforms.tag = GREEN_PLATFORM_TAG;
+        redPlatforms.tag = RED_PLATFORM_TAG;
 
         for (int i = 0; i < GameController.Instance.onsetList.Count; i++) {
-            if (i % platfomGenerateInterval != 0) {
+            float curX = GameController.Instance.onsetList[i];
+            Nullable<GeneratorConfig> curConfig = GetCurrentConfig(curX);
+            if (curConfig == null || (i % curConfig.Value.platfomGenerateInterval == 0) && curConfig.Value.platfomGenerateInterval > 0) {
                 continue;
             }
-            float x = GameController.Instance.onsetList[i];
-            lastY = GenerateNextYPosition(x, lastY);
-
-            GenerateNextPlatform1(x + platformOffsetX, lastY);
+            
+            lastY = GenerateNextYPosition(curConfig.Value, curX, lastY);
+            GenerateNextPlatform(curConfig.Value, curX, lastY, greenPlatforms, redPlatforms);
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
