@@ -28,8 +28,10 @@ public class PlayerController : MonoBehaviour {
     
     // Update is called once per frame
     void Update () {
+        #if UNITY_EDITOR || UNITY_STANDALONE
+            handleKeyBoardInput();
+        #endif
 
-        handleKeyBoardInput();
         if (mRigidbody.velocity.y == 0) {
             isJumping = false;
         }
@@ -37,8 +39,25 @@ public class PlayerController : MonoBehaviour {
 
     public void handleKeyBoardInput() {
         if ( (isLeftJumpEnabled > 0 && (Input.GetKeyDown(KeyCode.Z) || Input.GetKey(KeyCode.Z))) ||
-            (isRightJumpEnabled > 0 && (Input.GetKeyDown(KeyCode.X) || Input.GetKey(KeyCode.X))) )
-            Jump();
+            (isRightJumpEnabled > 0 && (Input.GetKeyDown(KeyCode.X) || Input.GetKey(KeyCode.X))) ) {
+                Jump();
+            }       
+    }
+
+    public void handleGreenTouchInput() {
+        if (isLeftJumpEnabled <= 0) {
+            return;
+        }
+
+        Jump();
+    }
+
+    public void handleRedTouchInput() {
+        if (isRightJumpEnabled <= 0) {
+            return;
+        }
+
+        Jump();
     }
 
     void Jump() {
