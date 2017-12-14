@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [System.Serializable]
 public struct GeneratorConfig {
@@ -8,8 +9,8 @@ public struct GeneratorConfig {
 
     public int platfomGenerateInterval;
 
-    public GameObject greenPlatformPrefb;
-    public GameObject RedPlatformPrefb;
+    public List<GameObject> greenPlatformPrefbs;
+    public List<GameObject> redPlatformPrefbs;
 
     public int skipThreshold;
     public int verticalUpThreshold;

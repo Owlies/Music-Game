@@ -48,6 +48,15 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
         return lastY;
     }
 
+    GameObject GetRandomPlatformPrefab(List<GameObject> prefabs) {
+        if (prefabs.Count == 0) {
+            return null;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, prefabs.Count);
+        return prefabs[randomIndex];
+    }
+
     void GenerateGameObject(float x, float y, GameObject prefab, GameObject parent) {
         GameObject obj = GameObject.Instantiate(prefab) as GameObject;
         obj.transform.parent = parent.transform;
@@ -56,18 +65,27 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
 
     void GenerateNextPlatform(GeneratorConfig curConfig, float x, float y, GameObject greenPlatformParent, GameObject redPlatformParent) {
         int randomNumber = UnityEngine.Random.Range(0, 2);
-        Debug.Log("GenerateNextPlatform");
         if (y == 0) {
             return;
         }
-        Debug.Log("GenerateNextPlatform, " + x + ", " + y);
+        
+        GameObject prefabObj = null;
+
         // Generate Green Platform
         if (randomNumber == 1) {
-            GenerateGameObject(x, y, curConfig.greenPlatformPrefb, greenPlatformParent);
+            prefabObj = GetRandomPlatformPrefab(curConfig.greenPlatformPrefbs);
+            if (prefabObj == null) {
+                return;
+            }
+            GenerateGameObject(x, y, prefabObj, greenPlatformParent);
             return;
         }
 
-        GenerateGameObject(x, y, curConfig.RedPlatformPrefb, redPlatformParent);
+        prefabObj = GetRandomPlatformPrefab(curConfig.redPlatformPrefbs);
+        if (prefabObj == null) {
+            return;
+        }
+        GenerateGameObject(x, y, prefabObj, redPlatformParent);
     }
 
     public void GeneratePlatform() {
