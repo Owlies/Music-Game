@@ -35,6 +35,10 @@ public class PlayerController : MonoBehaviour {
         if (mRigidbody.velocity.y == 0) {
             isJumping = false;
         }
+
+        if (mRigidbody.velocity.x > 0 && mRigidbody.velocity.x != horizontalSpeed) {
+            mRigidbody.velocity = new Vector2(horizontalSpeed, 0.0f);
+        }
     }
 
     public void handleKeyBoardInput() {
