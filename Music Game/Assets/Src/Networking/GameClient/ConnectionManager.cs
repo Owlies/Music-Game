@@ -13,10 +13,6 @@ namespace Owlies.Core {
     }
 
     public class ConnectionManager : Singleton<ConnectionManager> {
-        void Awake() {
-            DontDestroyOnLoad(transform.gameObject);
-        }
-
         public byte[] serialize(SprotoTypeBase sprotoObject, eMessageRequestType messageType) {
             string messageName = sprotoObject.GetType().Name;
             int messageNameLen = messageName.Length + 1;
