@@ -41,8 +41,6 @@ public class PlayerController : MonoBehaviour {
     /// This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
     /// </summary>
     void FixedUpdate() {
-        // isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        // isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckLength, 0.0f, groundLayer);
         checkGrounded();
 
         #if UNITY_EDITOR || UNITY_STANDALONE
@@ -82,7 +80,6 @@ public class PlayerController : MonoBehaviour {
     }
 
     public void handleTouchEnd() {
-        Debug.Log("handleTouchEnd");
         jumpPressed = false;
     }
     void Jump() {
