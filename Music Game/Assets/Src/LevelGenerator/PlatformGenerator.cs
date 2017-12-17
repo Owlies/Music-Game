@@ -93,7 +93,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
         PlayerController playerCtrl = player.GetComponent<PlayerController>();
         Rigidbody2D rigidBody = player.GetComponent<Rigidbody2D>();
 
-        float vy = playerCtrl.verticalSpeed / rigidBody.mass;
+        float vy = playerCtrl.verticalForce / rigidBody.mass;
         float g = Physics.gravity.y * rigidBody.gravityScale;
 
         return 1.5f * Mathf.Abs(vy / g);
@@ -104,7 +104,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
         PlayerController playerCtrl = player.GetComponent<PlayerController>();
         Rigidbody2D rigidBody = player.GetComponent<Rigidbody2D>();
 
-        float vy = playerCtrl.verticalSpeed / rigidBody.mass;
+        float vy = playerCtrl.verticalForce / rigidBody.mass;
         float g = Physics.gravity.y * rigidBody.gravityScale;
 
         return - (Mathf.Sqrt(vy * vy - 2 * g * lastY) + vy) / g;
@@ -116,7 +116,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
         PlayerController playerCtrl = player.GetComponent<PlayerController>();
         Rigidbody2D rigidBody = player.GetComponent<Rigidbody2D>();
 
-        float vy = playerCtrl.verticalSpeed / rigidBody.mass;
+        float vy = playerCtrl.verticalForce / rigidBody.mass;
         float g = Physics.gravity.y * rigidBody.gravityScale;
 
         return vy * deltaT + 0.5f * g * deltaT * deltaT;
