@@ -7,8 +7,7 @@ using System;
 
 public class PlatformGenerator : Singleton<PlatformGenerator> {
     public List<GeneratorConfig> configs;
-    private string GREEN_PLATFORM_TAG = "GreenPlatforms";
-    private string RED_PLATFORM_TAG = "RedPlatforms";
+    private string PLATFORM_TAG = "Platform";
 
     private Nullable<GeneratorConfig> GetCurrentConfig(float curX) {
         for(int i = 0; i < configs.Count; i++) {
@@ -73,7 +72,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
 
         // Generate Green Platform
         if (randomNumber == 1) {
-            prefabObj = GetRandomPlatformPrefab(curConfig.greenPlatformPrefbs);
+            prefabObj = GetRandomPlatformPrefab(curConfig.platformPrefabs);
             if (prefabObj == null) {
                 return;
             }
@@ -81,33 +80,94 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
             return;
         }
 
-        prefabObj = GetRandomPlatformPrefab(curConfig.redPlatformPrefbs);
+        prefabObj = GetRandomPlatformPrefab(curConfig.platformPrefabs);
         if (prefabObj == null) {
             return;
         }
         GenerateGameObject(x, y, prefabObj, redPlatformParent);
     }
 
+    public float GetMinDeltaTime()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        PlayerController playerCtrl = player.GetComponent<PlayerController>();
+        Rigidbody2D rigidBody = player.GetComponent<Rigidbody2D>();
+
+        float vy = playerCtrl.verticalSpeed / rigidBody.mass;
+        float g = Physics.gravity.y * rigidBody.gravityScale;
+
+        return 1.5f * Mathf.Abs(vy / g);
+    }
+    public float GetMaxDeltaTime(float lastY)
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        PlayerController playerCtrl = player.GetComponent<PlayerController>();
+        Rigidbody2D rigidBody = player.GetComponent<Rigidbody2D>();
+
+        float vy = playerCtrl.verticalSpeed / rigidBody.mass;
+        float g = Physics.gravity.y * rigidBody.gravityScale;
+
+        return - (Mathf.Sqrt(vy * vy - 2 * g * lastY) + vy) / g;
+    }
+
+    public float calculateDeltaY(float deltaT)
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        PlayerController playerCtrl = player.GetComponent<PlayerController>();
+        Rigidbody2D rigidBody = player.GetComponent<Rigidbody2D>();
+
+        float vy = playerCtrl.verticalSpeed / rigidBody.mass;
+        float g = Physics.gravity.y * rigidBody.gravityScale;
+
+        return vy * deltaT + 0.5f * g * deltaT * deltaT;
+    }
+
     public void GeneratePlatform() {
-        DeleteObjectWithTag(GREEN_PLATFORM_TAG);
-        DeleteObjectWithTag(RED_PLATFORM_TAG);
+        DeleteObjectWithTag(PLATFORM_TAG);
 
         float lastY = 0.0f;
+        float lastX = -5.0f;
 
-        GameObject greenPlatforms = new GameObject(GREEN_PLATFORM_TAG);
-        GameObject redPlatforms = new GameObject(RED_PLATFORM_TAG);
-        greenPlatforms.tag = GREEN_PLATFORM_TAG;
-        redPlatforms.tag = RED_PLATFORM_TAG;
+        float minTime = GetMinDeltaTime();
 
-        for (int i = 0; i < GameController.Instance.onsetList.Count; i++) {
+        GameObject platforms = new GameObject(PLATFORM_TAG);
+        platforms.tag = PLATFORM_TAG;
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        PlayerController playerCtrl = player.GetComponent<PlayerController>();
+
+        for (int i = 0; i < GameController.Instance.onsetList.Count; i++)
+        {
             float curX = GameController.Instance.onsetList[i];
             Nullable<GeneratorConfig> curConfig = GetCurrentConfig(curX);
-            if (curConfig == null || (i % curConfig.Value.platfomGenerateInterval == 0) && curConfig.Value.platfomGenerateInterval > 0) {
+
+            float randomNumber = UnityEngine.Random.Range(0, 1.0f);
+            if (curConfig == null || randomNumber > curConfig.Value.generateRate)
                 continue;
-            }
-            
-            lastY = GenerateNextYPosition(curConfig.Value, curX, lastY);
-            GenerateNextPlatform(curConfig.Value, curX, lastY, greenPlatforms, redPlatforms);
+
+            float maxTime = GetMaxDeltaTime(lastY);
+            float deltaTime = (curX - lastX) / playerCtrl.horizontalSpeed;
+            if (deltaTime < minTime)
+                continue;
+
+            float t = UnityEngine.Random.Range(minTime, Mathf.Min(maxTime,deltaTime));
+            float curY = lastY + calculateDeltaY(t);
+
+            GameObject prefab = GetRandomPlatformPrefab(curConfig.Value.platformPrefabs);
+            GameObject obj = GameObject.Instantiate(prefab) as GameObject;
+            obj.transform.parent = platforms.transform;
+
+            obj.transform.position = new Vector3(lastX, curY, 0);
+            PadController ctrl = obj.GetComponentInChildren<PadController>();
+            SpriteRenderer sprite = ctrl.GetComponent<SpriteRenderer>();
+            ctrl.transform.localPosition = new Vector3((curX - lastX) / 2 + 1.1f, - sprite.size.y / 2, 0);
+            sprite.size = new Vector2((curX - lastX) - 1.1f, sprite.size.y);
+
+
+            lastX = curX;
+            lastY = curY;
+
+            //lastY = GenerateNextYPosition(curConfig.Value, curX, lastY);
+            //GenerateNextPlatform(curConfig.Value, curX, lastY, greenPlatforms, redPlatforms);
         }
     }
 }

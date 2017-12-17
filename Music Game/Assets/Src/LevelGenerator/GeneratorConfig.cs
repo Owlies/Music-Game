@@ -7,10 +7,9 @@ public struct GeneratorConfig {
     public int endX;
     public float verticalDifference;
 
-    public int platfomGenerateInterval;
+    public float generateRate;
 
-    public List<GameObject> greenPlatformPrefbs;
-    public List<GameObject> redPlatformPrefbs;
+    public List<GameObject> platformPrefabs;
 
     public int skipThreshold;
     public int verticalUpThreshold;
