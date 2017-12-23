@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour {
         jumpPressed = false;
     }
     void Jump() {
-        if (jumpPressed && isGrounded) {
+        if (jumpPressed && isGrounded && mRigidbody.velocity.y == 0) {
             mRigidbody.AddForce(new Vector2(0, verticalForce), ForceMode2D.Impulse);
         }
     }
@@ -96,5 +96,4 @@ public class PlayerController : MonoBehaviour {
         mRigidbody.velocity = new Vector2(0, 0);
         mRigidbody.Sleep();
     }
-
 }
