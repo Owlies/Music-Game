@@ -155,8 +155,11 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
             GameObject prefab = GetRandomPlatformPrefab(curConfig.Value.platformPrefabs);
             GameObject obj = GameObject.Instantiate(prefab) as GameObject;
             obj.transform.parent = platforms.transform;
+            GameObject hint = GameObject.Instantiate(Resources.Load("Prefabs/Hint")) as GameObject;
+            hint.transform.SetParent(platforms.transform);
 
             obj.transform.position = new Vector3(lastX, curY, 0);
+            hint.transform.position = new Vector3(curX, curY + 0.5f, 0);
             PadController ctrl = obj.GetComponentInChildren<PadController>();
             SpriteRenderer sprite = ctrl.GetComponent<SpriteRenderer>();
             ctrl.transform.localPosition = new Vector3((curX - lastX) / 2 + 1.1f, - sprite.size.y / 2, 0);
@@ -165,9 +168,6 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
 
             lastX = curX;
             lastY = curY;
-
-            //lastY = GenerateNextYPosition(curConfig.Value, curX, lastY);
-            //GenerateNextPlatform(curConfig.Value, curX, lastY, greenPlatforms, redPlatforms);
         }
     }
 }
