@@ -6,15 +6,21 @@ public class MusicController : MonoBehaviour {
 	public float startDelay = 0.0f;
     AudioSource mAudioSource;
     // Use this for initialization
-    void Start () {
+    public void Play () {
         mAudioSource = GetComponent<AudioSource>();
         mAudioSource.PlayDelayed(startDelay);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     public void StopLevelMusic()
     {

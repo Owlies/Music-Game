@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour {
 
-    private Rigidbody2D mRigidbody;
+    private Rigidbody2D mRigidbody = null;
     public float horizontalSpeed = 0.0f;
     public float verticalForce = 0.0f;
     int isLeftJumpEnabled = 0;
@@ -19,9 +19,23 @@ public class PlayerController : MonoBehaviour {
     private bool jumpPressed = false;
 
     // Use this for initialization
-    void Start () {
+    void Start ()
+    {
         mRigidbody = this.GetComponent<Rigidbody2D>();
-        mRigidbody.velocity = new Vector2(horizontalSpeed, 0.0f);
+    }
+
+    bool isInited = false;
+
+    private void Update()
+    {
+        if (!isInited)
+        {
+            MusicController musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
+            musicCtrl.Play();
+            mRigidbody.velocity = new Vector2(horizontalSpeed, 0.0f);
+
+            isInited = true;
+        }
     }
 
     void EnableLeftJump(bool enable) {
@@ -41,6 +55,7 @@ public class PlayerController : MonoBehaviour {
     /// This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
     /// </summary>
     void FixedUpdate() {
+
         checkGrounded();
 
         #if UNITY_EDITOR || UNITY_STANDALONE
