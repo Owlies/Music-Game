@@ -25,7 +25,9 @@ public class MusicEditor {
         GameController.Instance.onsetList.Clear();
         while ((str = sr.ReadLine()) != null)
         {
-            float time = float.Parse(str);
+            string[] strs = str.Split(',');
+            float time = float.Parse(strs[0]);
+            
             GameObject a = GameObject.Instantiate(Resources.Load("Prefabs/Hint")) as GameObject;
             a.transform.parent = hint.transform;
 
@@ -36,7 +38,7 @@ public class MusicEditor {
             float offset = (musicCtrl.startDelay + time) * playerCtrl.horizontalSpeed + 0.85f;
 
             a.transform.position = new Vector3(offset, 0.2f, 0);
-            GameController.Instance.onsetList.Add(offset);
+            GameController.Instance.AddToOnsetList(time, strs[1]);
         }
     }
 	

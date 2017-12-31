@@ -9,8 +9,14 @@ public class GameController : Singleton<GameController> {
     private PlayerController playerCtrl;
     private MusicController musicCtrl;
     private GameObject debugInfo;
-    public List<float> onsetList;
+    public List<Onset> onsetList;
 
+    public void AddToOnsetList(float timing, string tap) {
+        Onset onset = new Onset();
+        onset.timestamp = timing;
+        onset.tap = tap;
+        onsetList.Add(onset);
+    }
     // Use this for initialization
     void Start ()
     {
@@ -19,7 +25,7 @@ public class GameController : Singleton<GameController> {
         musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
         debugInfo = GameObject.FindGameObjectWithTag("EditorOnly");
         debugInfo.SetActive(false);
-        onsetList = new List<float>();
+        onsetList = new List<Onset>();
     }
 	
 	// Update is called once per frame
