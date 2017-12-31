@@ -23,6 +23,10 @@ public class MusicEditor {
         StreamReader sr = File.OpenText(path);
         string str;
         GameController.Instance.onsetList.Clear();
+
+        MusicController musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
+        PlayerController playerCtrl = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+
         while ((str = sr.ReadLine()) != null)
         {
             string[] strs = str.Split(',');
@@ -31,11 +35,7 @@ public class MusicEditor {
             GameObject a = GameObject.Instantiate(Resources.Load("Prefabs/Hint")) as GameObject;
             a.transform.parent = hint.transform;
 
-
-            MusicController musicCtrl = GameObject.FindGameObjectWithTag("MusicController").GetComponent<MusicController>();
-            PlayerController playerCtrl = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-
-            float offset = (musicCtrl.startDelay + time) * playerCtrl.horizontalSpeed + 0.85f;
+            float offset = (musicCtrl.startDelay + time) * playerCtrl.horizontalSpeed;
 
             a.transform.position = new Vector3(offset, 0.2f, 0);
             GameController.Instance.AddToOnsetList(offset, strs[1]);

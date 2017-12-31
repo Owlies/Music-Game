@@ -126,7 +126,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
         DeleteObjectWithTag(PLATFORM_TAG);
 
         float lastY = 0.0f;
-        float lastX = 0.0f;
+        float lastX = -5.0f;
 
         float minTime = GetMinDeltaTime();
 
