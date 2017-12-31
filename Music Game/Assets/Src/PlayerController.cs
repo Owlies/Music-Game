@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour {
 
+    public Animator animator;
     private Rigidbody2D mRigidbody = null;
     public float horizontalSpeed = 0.0f;
     public float verticalForce = 0.0f;
@@ -100,6 +101,7 @@ public class PlayerController : MonoBehaviour {
     void Jump() {
         if (jumpPressed && isGrounded && mRigidbody.velocity.y == 0) {
             mRigidbody.AddForce(new Vector2(0, verticalForce), ForceMode2D.Impulse);
+            animator.SetTrigger("Jump");
         }
     }
 
