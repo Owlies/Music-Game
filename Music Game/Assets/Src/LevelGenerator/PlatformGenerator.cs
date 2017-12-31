@@ -126,7 +126,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
         DeleteObjectWithTag(PLATFORM_TAG);
 
         float lastY = 0.0f;
-        float lastX = -5.0f;
+        float lastX = 0.0f;
 
         float minTime = GetMinDeltaTime();
 
@@ -137,7 +137,7 @@ public class PlatformGenerator : Singleton<PlatformGenerator> {
 
         for (int i = 0; i < GameController.Instance.onsetList.Count; i++)
         {
-            float curX = GameController.Instance.onsetList[i].timestamp;
+            float curX = GameController.Instance.onsetList[i].positionX;
             Nullable<GeneratorConfig> curConfig = GetCurrentConfig(curX);
 
             float randomNumber = UnityEngine.Random.Range(0, 1.0f);

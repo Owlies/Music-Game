@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 [System.Serializable]
 public struct Onset {
-    public float timestamp;
+    public float positionX;
     public string tap;
 
 };

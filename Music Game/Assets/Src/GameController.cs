@@ -11,12 +11,13 @@ public class GameController : Singleton<GameController> {
     private GameObject debugInfo;
     public List<Onset> onsetList;
 
-    public void AddToOnsetList(float timing, string tap) {
+    public void AddToOnsetList(float x, string tap) {
         Onset onset = new Onset();
-        onset.timestamp = timing;
+        onset.positionX = x;
         onset.tap = tap;
         onsetList.Add(onset);
     }
+    
     // Use this for initialization
     void Start ()
     {
